@@ -1,5 +1,7 @@
+import { queries } from "@testing-library/dom";
 import { Answer } from "./interfaces/answer";
 import { Question, QuestionType } from "./interfaces/question";
+import { makeBlankQuestion } from "./objects";
 
 /**
  * Consumes an array of questions and returns a new array with only the questions
@@ -173,7 +175,13 @@ export function addNewQuestion(
     name: string,
     type: QuestionType,
 ): Question[] {
-    return [];
+    const deepCopy = questions.map(
+        (question: Question): Question => ({
+            ...question,
+            options: [...question.options],
+        }),
+    );
+    return [...deepCopy, makeBlankQuestion(id, name, type)];
 }
 
 /***
@@ -186,7 +194,13 @@ export function renameQuestionById(
     targetId: number,
     newName: string,
 ): Question[] {
-    return [];
+    return questions.map(
+        (question: Question): Question => ({
+            ...question,
+            options: [...question.options],
+            name: question.id === targetId ? newName : question.name,
+        }),
+    );
 }
 
 /***
@@ -201,7 +215,36 @@ export function changeQuestionTypeById(
     targetId: number,
     newQuestionType: QuestionType,
 ): Question[] {
-    return [];
+    return questions.map(
+        (question: Question): Question => ({
+            ...question,
+            type: question.id === targetId ? newQuestionType : question.type,
+            options:
+                (
+                    question.id === targetId &&
+                    newQuestionType !== "multiple_choice_question"
+                ) ?
+                    []
+                :   [...question.options],
+        }),
+    );
+}
+
+/**
+ * Helper function to editOption
+ */
+function addOption(
+    question: Question,
+    index: number,
+    newOption: string,
+): string[] {
+    const deepCopy = [...question.options];
+    if (index === -1) {
+        deepCopy.splice(question.options.length, 0, newOption);
+    } else {
+        deepCopy.splice(index, 1, newOption);
+    }
+    return deepCopy;
 }
 
 /**
@@ -220,7 +263,15 @@ export function editOption(
     targetOptionIndex: number,
     newOption: string,
 ): Question[] {
-    return [];
+    return questions.map(
+        (question: Question): Question => ({
+            ...question,
+            options:
+                question.id === targetId ?
+                    addOption(question, targetOptionIndex, newOption)
+                :   [...question.options],
+        }),
+    );
 }
 
 /***
