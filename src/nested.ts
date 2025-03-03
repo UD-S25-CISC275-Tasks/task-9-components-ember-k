@@ -1,7 +1,7 @@
-import { queries } from "@testing-library/dom";
+//import { queries } from "@testing-library/dom";
 import { Answer } from "./interfaces/answer";
 import { Question, QuestionType } from "./interfaces/question";
-import { makeBlankQuestion } from "./objects";
+import { makeBlankQuestion, duplicateQuestion } from "./objects";
 
 /**
  * Consumes an array of questions and returns a new array with only the questions
@@ -257,6 +257,7 @@ function addOption(
  * Remember, if a function starts getting too complicated, think about how a helper function
  * can make it simpler! Break down complicated tasks into little pieces.
  */
+//Credit to chatGPT for helping me debug my incorrect use of splice
 export function editOption(
     questions: Question[],
     targetId: number,
@@ -285,5 +286,18 @@ export function duplicateQuestionInArray(
     targetId: number,
     newId: number,
 ): Question[] {
-    return [];
+    const deepCopy = questions.map(
+        (question: Question): Question => ({
+            ...question,
+            options: [...question.options],
+        }),
+    );
+    const index = deepCopy.findIndex(
+        (question: Question): boolean => question.id === targetId,
+    );
+    if (index === -1) {
+        return deepCopy;
+    }
+    deepCopy.splice(index + 1, 0, duplicateQuestion(newId, questions[index]));
+    return deepCopy;
 }
