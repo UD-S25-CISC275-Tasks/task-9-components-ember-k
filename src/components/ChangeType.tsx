@@ -6,6 +6,7 @@ export function ChangeType(): React.JSX.Element {
     const [qType, setQType] = useState<QuestionType>("short_answer_question");
     return (
         <div>
+            <p>Change Type</p>
             <Button
                 onClick={() => {
                     setQType(
